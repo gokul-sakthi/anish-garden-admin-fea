@@ -1,3 +1,3 @@
 export const GlobalVariable = Object.freeze({
-  BASE_API_URL: "http://localhost:8000",
+  BASE_API_URL: "https://eplants-backend.herokuapp.com",
 });
