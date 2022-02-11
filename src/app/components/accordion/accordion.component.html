@@ -1,0 +1,23 @@
+<div class="rounded shadow my-3">
+  <div
+    class="panel p-2 px-3 h6 px-0 bg-secondary text-white d-flex"
+    [ngClass]="hideContent ? 'rounded' : 'rounded-top'"
+    role="button"
+  >
+    <span class="flex-grow-1 py-2" (click)="hideContent = !hideContent">{{
+      name
+    }}</span>
+    <span>
+      <i class="fa fa-edit mx-2 mt-2" (click)="editAccordionContent()"></i>
+      <i class="fa fa-trash mx-2 mt-2" (click)="deleteAccordionContent()"></i>
+      <i
+        class="fa mt-2 mx-2"
+        [ngClass]="hideContent ? 'fa-chevron-down' : 'fa-chevron-up'"
+        (click)="hideContent = !hideContent"
+      ></i>
+    </span>
+  </div>
+  <div class="content-body" [ngClass]="{ 'd-none': hideContent }">
+    <ng-content></ng-content>
+  </div>
+</div>

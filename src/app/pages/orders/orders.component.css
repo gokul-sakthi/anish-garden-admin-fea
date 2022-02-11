@@ -1,0 +1,6 @@
+.orderItem:hover {
+  background: rgb(201, 238, 206);
+  border-radius: 20%;
+  color: #2f2f31;
+  cursor: pointer;
+}

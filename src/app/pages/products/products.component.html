@@ -1,0 +1,437 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <!-- navigation tabs -->
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              role="button"
+              [ngClass]="{ active: tab === 'add' }"
+              (click)="onChangeTab('add')"
+              >{{ editMode ? "Edit" : "Add" }} Product</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [ngClass]="{ active: tab === 'viewall' }"
+              (click)="onChangeTab('viewall')"
+              role="button"
+              >View Products</a
+            >
+          </li>
+        </ul>
+      </div>
+      <div class="card-body">
+        <!-- Template Outlet -->
+        <ng-container
+          *ngTemplateOutlet="{ add: add, viewall: viewall }[tab]"
+        ></ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Product -->
+
+<ng-template #add>
+  <form
+    [formGroup]="myForm"
+    (ngSubmit)="submit()"
+    (keydown)="($event.key != 'Enter')"
+  >
+    <!-- name -->
+    <div class="form-group">
+      <label for="name">Name*</label>
+      <input
+        type="text"
+        formControlName="name"
+        class="form-control"
+        placeholder="Product Name"
+      />
+    </div>
+
+    <div class="help-block text-danger">
+      <p
+        *ngIf="
+          myForm.get('name').errors?.required === true &&
+          myForm.get('name').touched === true
+        "
+      >
+        Name is a required Field
+      </p>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea
+        formControlName="description"
+        id=""
+        cols="30"
+        rows="10"
+        class="form-control"
+      ></textarea>
+    </div>
+
+    <div class="help-block text-danger">
+      <p
+        *ngIf="
+          myForm.get('description').errors?.required === true &&
+          myForm.get('description').touched === true
+        "
+      >
+        Description is a required Field
+      </p>
+      <p
+        *ngIf="
+          myForm.get('description').errors?.minlength &&
+          myForm.get('description').touched === true
+        "
+      >
+        Description must be atleast
+        {{ myForm.get("description").errors?.minlength.requiredLength }}
+        characters long.
+      </p>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Price</label>
+      <input type="number" formControlName="price" id="" class="form-control" />
+    </div>
+
+    <div class="help-block text-danger">
+      <p
+        *ngIf="
+          myForm.get('price').errors?.required === true &&
+          myForm.get('price').touched === true
+        "
+      >
+        Price is a required Field
+      </p>
+      <p
+        *ngIf="
+          myForm.get('price').errors?.min &&
+          myForm.get('price').touched === true
+        "
+      >
+        Price must be atleast
+        {{ myForm.get("price").errors?.min.min }}
+      </p>
+    </div>
+
+    <div class="form-group">
+      <label for="stocks">Stock Count</label>
+      <input type="number" formControlName="stocks" class="form-control" />
+    </div>
+    <div class="help-block text-danger">
+      <p
+        *ngIf="
+          myForm.get('stocks').errors?.min &&
+          myForm.get('stocks').touched === true
+        "
+      >
+        Min allowed stock price is
+        {{ myForm.get("stocks").errors?.min.min }}
+      </p>
+    </div>
+
+    <label class="text-muted">Select Category</label>
+
+    <div class="row">
+      <div class="col-md-12">
+        <!-- Category -->
+        <div ngbDropdown class="d-inline-block mr-1 mb-1">
+          <button
+            class="btn btn-primary category-button"
+            readonly
+            id="dropdownBasic1"
+            ngbDropdownToggle
+            role="button"
+            (click)="
+              $event.preventDefault();
+              myForm.get('category').markAsTouched();
+              myForm.get('subCategory').markAsTouched()
+            "
+            placeholder="Category"
+          >
+            {{ currentCategory ? currentCategory.name : "Category " }}
+          </button>
+          <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+            <button
+              ngbDropdownItem
+              *ngFor="let categoryItem of category"
+              (click)="$event.preventDefault(); selectCategory(categoryItem)"
+            >
+              {{ categoryItem.name }}
+            </button>
+          </div>
+        </div>
+
+        <!-- sub category -->
+        <div ngbDropdown class="d-inline-block mr-1 mb-1">
+          <button
+            class="btn sub-category-button"
+            readonly
+            id="dropdownBasic1"
+            ngbDropdownToggle
+            (click)="$event.preventDefault()"
+          >
+            {{ currentSubCategory ? currentSubCategory : "SubCategory " }}
+          </button>
+
+          <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+            <button
+              ngbDropdownItem
+              *ngFor="let subCategoryItem of subCategory"
+              (click)="
+                $event.preventDefault(); selectSubCategory(subCategoryItem)
+              "
+            >
+              {{ subCategoryItem }}
+            </button>
+          </div>
+        </div>
+        <button
+          class="d-inline-block btn btn-danger reset-category-button"
+          (click)="$event.preventDefault(); resetCategoryValues()"
+        >
+          Reset Category
+        </button>
+      </div>
+    </div>
+    <div class="help-block text-muted">
+      <label
+        class="text-danger d-block"
+        *ngIf="
+          myForm.get('category').errors?.required &&
+          myForm.get('category').touched
+        "
+      >
+        Category must be selected
+      </label>
+      <label
+        class="text-danger d-block"
+        *ngIf="
+          myForm.get('subCategory').errors?.required &&
+          myForm.get('subCategory').touched
+        "
+      >
+        Subcategory must be selected
+      </label>
+      <label class="text-muted mb-3"
+        ><strong>Note: </strong>Select category to display the
+        subcategories</label
+      >
+    </div>
+
+    <!-- Images -->
+    <label for="" class="text-muted">Select Images</label>
+    <div class="form-group">
+      <label for="file" role="button" class="d-block"
+        ><button class="btn btn-success d-block w-100 p-3 h6">
+          Upload Images
+        </button></label
+      >
+      <input
+        type="file"
+        multiple
+        role="button"
+        formControlName="images"
+        (change)="onFileChange($event, 'images')"
+      />
+    </div>
+
+    <!-- Images preview -->
+    <div class="d-flex flex-wrap">
+      <div class="preview-image-wrapper" *ngFor="let image of previewImages">
+        <div class="modal-wrapper">
+          <p>{{ formatMemorySize(image.size) }}</p>
+          <p>{{ image.filename }}</p>
+        </div>
+        <i
+          class="nc-icon nc-simple-remove remove-icon"
+          (click)="removeFromPreview(image.id)"
+        ></i>
+        <img src="{{ image.file }}" alt="" class="" srcset="" />
+      </div>
+    </div>
+    <div class="help-block text-muted my-0" *ngIf="previewImages.length > 0">
+      <p class="my-0">
+        Maxiumum number of images that can be added :
+        {{ maxImageFileCount }}
+      </p>
+      <p>Total Size : ({{ formatMemorySize(previewImageTotalSize) }} )</p>
+    </div>
+    <!-- <div class="help-block text-danger">
+      <p
+        *ngIf="
+          myForm.get('images').errors?.required === true &&
+          myForm.get('images').touched === true
+        "
+      >
+        Atleast one image is a required
+      </p>
+    </div> -->
+
+    <!-- Thumbnail -->
+    <label for="" class="text-muted">Select Thumbnail</label>
+    <div class="form-group">
+      <label for="file" role="button" class="w-100 d-block"
+        ><button class="btn btn-success d-block w-100 h6 p-3">
+          Upload Thumbnail
+        </button></label
+      >
+      <input
+        type="file"
+        role="button"
+        formControlName="thumbnail"
+        (change)="onFileChange($event, 'thumbnail')"
+      />
+    </div>
+
+    <!-- thumbnail preview -->
+    <div class="d-flex flex-wrap" *ngIf="thumbnailPreview !== undefined">
+      <div class="preview-image-wrapper">
+        <div class="modal-wrapper">
+          <p>{{ formatMemorySize(thumbnailPreview.size) }}</p>
+          <p>{{ thumbnailPreview.filename }}</p>
+        </div>
+        <i
+          class="nc-icon nc-simple-remove remove-icon"
+          (click)="removeThumbnailPreview()"
+        ></i>
+        <img src="{{ thumbnailPreview.file }}" alt="" class="" srcset="" />
+      </div>
+    </div>
+
+    <div class="help-block text-muted">
+      <p *ngIf="thumbnailPreview">
+        Total Size : ({{ formatMemorySize(thumbnailPreviewTotalSize) }} )
+      </p>
+    </div>
+
+    <!-- <div class="help-block text-danger">
+      <p
+        *ngIf="
+          myForm.get('thumbnail').errors?.required === true &&
+          myForm.get('thumbnail').touched === true
+        "
+      >
+        Thumbnail is a required
+      </p>
+    </div> -->
+
+    <!-- <div class="progress" style="height: 10px">
+      <div
+        class="progress-bar progress-bar-animated progress-bar-striped"
+        role="progressbar"
+        style="width: 25%"
+        aria-valuenow="25"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      ></div>
+    </div> -->
+
+    <div class="row">
+      <div class="form-group col-md-12">
+        <label for="name">Tags</label>
+        <input
+          type="text"
+          class="form-control"
+          #f
+          [disabled]="tags.size >= 5"
+          placeholder=""
+          (keyup.enter)="addTag(f.value); f.value = ''"
+        />
+      </div>
+      <!-- <div class="col-md-2 mt-3">
+        <button
+          class="btn btn-success"
+          (click)="$event.preventDefault(); ; f.value = ''"
+        >
+          Add
+        </button>
+      </div> -->
+    </div>
+
+    <div class="d-flex flex-wrap">
+      <span class="tag-el" *ngFor="let tag of tags">
+        {{ tag }}
+        <i class="nc-icon nc-simple-remove" (click)="removeTag(tag)"></i>
+      </span>
+    </div>
+
+    <div class="help-block my-2 text-muted" *ngIf="tags.size >= 5">
+      <label class="text-info">Max of only 5 tags can be entered</label>
+    </div>
+
+    <button class="btn btn-primary" [disabled]="myForm.invalid" type="submit">
+      {{ editMode ? "Update" : "Save" }}
+    </button>
+    <button class="btn btn-primary" (click)="resetForm()">Reset</button>
+    <button
+      class="btn btn-warning"
+      [disabled]="!editMode"
+      (click)="editMode = false"
+    >
+      Exit Edit Mode
+    </button>
+  </form>
+</ng-template>
+
+<ng-template #viewall>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Products</h4>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead class="text-primary text-center">
+                <th>Id</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Category</th>
+                <th>Subcategory</th>
+                <th>Edit</th>
+                <th>Delete</th>
+              </thead>
+              <tbody>
+                <tr
+                  class="text-center"
+                  *ngFor="let product of products; let i = index"
+                >
+                  <td>{{ product._id }}</td>
+                  <td>{{ product.name }}</td>
+                  <td>{{ product.price }}</td>
+                  <td>{{ product.stocks }}</td>
+                  <td>{{ product.category }}</td>
+                  <td>{{ product.subCategory }}</td>
+                  <td>
+                    <i
+                      class="fa fa-edit text-info"
+                      role="button"
+                      (click)="enterEditMode(i)"
+                    ></i>
+                  </td>
+                  <td>
+                    <i
+                      class="fa fa-trash text-danger"
+                      role="button"
+                      (click)="deleteProduct(product._id)"
+                    ></i>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

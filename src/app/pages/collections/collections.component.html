@@ -1,0 +1,220 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="card card-user">
+      <div class="card-header">
+        <h5 class="card-title">
+          {{ editMode ? "Edit Collection" : "Create New" }}
+        </h5>
+      </div>
+      <div class="card-body">
+        <form [formGroup]="collectionsForm" (ngSubmit)="submitCollection()">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Collection Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  formControlName="name"
+                  placeholder="Name"
+                  value="Beginner Friendly Plants"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Message for name -->
+          <div class="help-block text-danger">
+            <p
+              *ngIf="
+                collectionsForm.get('name').errors?.required === true &&
+                collectionsForm.get('name').touched === true
+              "
+            >
+              Name is a required Field
+            </p>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <label>Description</label>
+                <textarea
+                  class="form-control textarea"
+                  formControlName="description"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message for description -->
+          <div class="help-block text-danger">
+            <p
+              *ngIf="
+                collectionsForm.get('description').errors?.required === true &&
+                collectionsForm.get('description').touched === true
+              "
+            >
+              Description is a required Field
+            </p>
+            <p
+              *ngIf="
+                collectionsForm.get('description').errors?.minlength &&
+                collectionsForm.get('description').touched === true
+              "
+            >
+              Description must be atleast
+              {{
+                collectionsForm.get("description").errors?.minlength
+                  .requiredLength
+              }}
+              characters long.
+            </p>
+          </div>
+
+          <label for="subcategories">Product ID</label>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <input
+                  type="text"
+                  formControlName="currentProductIdEntry"
+                  class="form-control mt-2"
+                  placeholder="Name"
+                />
+              </div>
+            </div>
+
+            <div class="col-md-2">
+              <div class="form-group">
+                <button
+                  class="btn btn-success"
+                  (click)="addProductToCollection(); $event.preventDefault()"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- display sub categories -->
+          <label for="">Display Product Ids</label>
+          <div class="" formArrayName="products">
+            <div
+              class="row"
+              *ngFor="let control of getProducts().controls; let i = index"
+            >
+              <div class="col-md-6">
+                <div class="form-group">
+                  <input
+                    type="text"
+                    [formControlName]="i"
+                    [value]="control.value"
+                    class="form-control mt-2"
+                  />
+                </div>
+              </div>
+              <div class="col-md-2">
+                <button
+                  class="btn btn-danger"
+                  (click)="
+                    $event.preventDefault(); removeProductFromCollection(i)
+                  "
+                >
+                  Remove
+                </button>
+              </div>
+              <p
+                class="help-block col-md-12 d-block text-danger"
+                *ngIf="
+                  getProducts().at(i).errors?.required &&
+                  getProducts().at(i).touched
+                "
+              >
+                ProductId should not be empty
+              </p>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="update ml-auto mr-auto">
+              <button
+                type="submit"
+                [disabled]="collectionsForm.invalid"
+                class="btn btn-primary btn-round mr-1"
+              >
+                {{ editMode ? "Update" : "Create"
+                }}<i class="ml-1 nc-icon nc-simple-add"></i>
+              </button>
+              <button
+                class="btn btn-warning btn-round"
+                [disabled]="!editMode"
+                (click)="editMode = false"
+              >
+                Exit Edit Mode
+              </button>
+              <button
+                class="btn btn-info btn-round"
+                (click)="$event.preventDefault(); resetForm()"
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- cards -->
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">All collections</h5>
+      </div>
+      <div class="card-body">
+        <!-- Collections not found -->
+        <h6
+          class="text-muted text-center py-4"
+          *ngIf="collectionsList.length === 0"
+        >
+          No collections found
+        </h6>
+
+        <!-- All collections -->
+        <div class="row" *ngIf="collectionsList.length !== 0">
+          <!-- Loop of items -->
+          <div
+            class="col-md-4 my-3"
+            *ngFor="let item of collectionsList; let i = index"
+          >
+            <div class="card shadow-lg text-dark bg-light h-100">
+              <div class="card-header">
+                <h6 class="card-title">{{ item.name }}</h6>
+              </div>
+              <div class="card-body">
+                <p>
+                  {{ item.description }}
+                </p>
+                <button
+                  class="btn btn-info text-white mr-1"
+                  (click)="editCollection(item)"
+                >
+                  Edit <i class="nc-icon nc-sound-wave"></i>
+                </button>
+                <button
+                  class="btn btn-danger text-white"
+                  (click)="deleteCollection(item)"
+                >
+                  Remove <i class="nc-icon nc-simple-remove"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

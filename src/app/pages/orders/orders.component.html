@@ -1,0 +1,323 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="">
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            role="button"
+            [ngClass]="{ active: tab === 'placed' }"
+            (click)="onChangeTab('placed')"
+            >Placed</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            role="button"
+            [ngClass]="{ active: tab === 'approved' }"
+            (click)="onChangeTab('approved')"
+            >Approved</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            role="button"
+            [ngClass]="{ active: tab === 'delivered' }"
+            (click)="onChangeTab('delivered')"
+            >Delivered</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            [ngClass]="{ active: tab === 'cancelled' }"
+            (click)="onChangeTab('cancelled')"
+            role="button"
+            >Cancelled</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            [ngClass]="{ active: tab === 'detailed' }"
+            (click)="onChangeTab('detailed')"
+            role="button"
+            >Detailed</a
+          >
+        </li>
+        <button
+          style="outline: none !important; border: none !important"
+          class="p-2 px-4 text-danger"
+          (click)="refreshData()"
+        >
+          <i class="fa fa-refresh"></i>
+        </button>
+      </ul>
+    </div>
+
+    <ng-container
+      *ngTemplateOutlet="
+        {
+          placed: placed,
+          approved: approved,
+          delivered: delivered,
+          cancelled: cancelled,
+          detailed: detailed
+        }[tab]
+      "
+    ></ng-container>
+  </div>
+</div>
+
+<ng-template #detailed>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Order ID : {{ selectedOrder._id }}</h4>
+        </div>
+        <div class="card-body py-4" *ngIf="selectedOrder">
+          <div class="row">
+            <div class="p-4 col-lg-6">
+              <h5><strong>User Details</strong></h5>
+              <p>
+                FullName: <span>{{ selectedOrder.userId.fullName }}</span>
+              </p>
+              <p>
+                Email: <span>{{ selectedOrder.userId.email }}</span>
+              </p>
+              <p>
+                Contact No: <span>{{ selectedOrder.userId.phone }}</span>
+              </p>
+              <p>
+                Billing Address:
+                <span>{{ selectedOrder.userId.billingAddress }}</span>
+              </p>
+              <p>
+                Order Placed on:
+                <span>{{ selectedOrder.createdAt | date }}</span>
+              </p>
+            </div>
+
+            <div class="p-4 col-lg-6">
+              <h5><strong>Product Details</strong></h5>
+              <p>
+                Name: <span>{{ selectedOrder.productId.name }}</span>
+              </p>
+              <p>
+                Category: <span>{{ selectedOrder.productId.category }}</span>
+              </p>
+              <p>
+                Sub-Category:
+                <span>{{ selectedOrder.productId.subCategory }}</span>
+              </p>
+
+              <p>
+                Stocks:
+                <span class="h4"
+                  ><strong>{{ selectedOrder.productId.stocks }}</strong></span
+                >
+              </p>
+            </div>
+          </div>
+          <p>
+            Status: <strong>{{ selectedOrder.status }}</strong>
+          </p>
+          <div class="">
+            <button
+              class="btn btn-success mr-2"
+              [disabled]="selectedOrder.status === 'APPROVED'"
+              (click)="changeOrderStatus('APPROVED')"
+            >
+              Approve
+            </button>
+            <button
+              class="btn btn-danger mr-2"
+              [disabled]="selectedOrder.status === 'CANCELLED'"
+              (click)="changeOrderStatus('CANCELLED')"
+            >
+              Cancel
+            </button>
+            <button
+              class="btn btn-info mr-2"
+              [disabled]="selectedOrder.status === 'DELIVERED'"
+              (click)="changeOrderStatus('DELIVERED')"
+            >
+              Delivered
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #placed>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Incoming Placed Orders</h4>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead class="text-primary">
+                <th>S.No</th>
+                <th>Order ID</th>
+                <th>ProductID</th>
+                <th>User ID</th>
+                <th class="text-right">Discount Amount</th>
+                <th class="text-right">Amount</th>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let order of placedOrders.orders; let i = index"
+                  class="orderItem"
+                  (click)="selectOrder(order._id)"
+                >
+                  <td class="text-center">{{ i + 1 }}</td>
+                  <td>{{ order._id }}</td>
+                  <td>{{ order.productId }}</td>
+                  <td>{{ order.userId }}</td>
+                  <td class="text-right">
+                    {{ order.discountedAmount }}
+                  </td>
+                  <td class="text-right">{{ order.amount }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #approved>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Approved Orders</h4>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead class="text-primary">
+                <th>S.No</th>
+                <th>Order ID</th>
+                <th>ProductID</th>
+                <th>User ID</th>
+                <th class="text-right">Discount Amount</th>
+                <th class="text-right">Amount</th>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let order of approvedOrders.orders; let i = index"
+                  class="orderItem"
+                  (click)="selectOrder(order._id)"
+                >
+                  <td class="text-center">{{ i + 1 }}</td>
+                  <td>{{ order._id }}</td>
+                  <td>{{ order.productId }}</td>
+                  <td>{{ order.userId }}</td>
+                  <td class="text-right">
+                    {{ order.discountedAmount }}
+                  </td>
+                  <td class="text-right">{{ order.amount }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #delivered>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Delivered Orders</h4>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead class="text-primary">
+                <th>S.No</th>
+                <th>Order ID</th>
+                <th>ProductID</th>
+                <th>User ID</th>
+                <th class="text-right">Discount Amount</th>
+                <th class="text-right">Amount</th>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let order of deliveredOrders.orders; let i = index"
+                  class="orderItem"
+                  (click)="selectOrder(order._id)"
+                >
+                  <td class="text-center">{{ i + 1 }}</td>
+                  <td>{{ order._id }}</td>
+                  <td>{{ order.productId }}</td>
+                  <td>{{ order.userId }}</td>
+                  <td class="text-right">
+                    {{ order.discountedAmount }}
+                  </td>
+                  <td class="text-right">{{ order.amount }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #cancelled>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="card-title">Cancelled Orders</h4>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead class="text-primary">
+                <th>S.No</th>
+                <th>Order ID</th>
+                <th>ProductID</th>
+                <th>User ID</th>
+                <th class="text-right">Discount Amount</th>
+                <th class="text-right">Amount</th>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let order of cancelledOrders.orders; let i = index"
+                  class="orderItem"
+                  (click)="selectOrder(order._id)"
+                >
+                  <td class="text-center">{{ i + 1 }}</td>
+                  <td>{{ order._id }}</td>
+                  <td>{{ order.productId }}</td>
+                  <td>{{ order.userId }}</td>
+                  <td class="text-right">
+                    {{ order.discountedAmount }}
+                  </td>
+                  <td class="text-right">{{ order.amount }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,162 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="">
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            role="button"
+            [ngClass]="{ active: tab === 'stocks' }"
+            (click)="onChangeTab('stocks')"
+            >Stocks</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            [ngClass]="{ active: tab === 'homepagedata' }"
+            (click)="onChangeTab('homepagedata')"
+            role="button"
+            >Homepage Data</a
+          >
+        </li>
+      </ul>
+
+      <!-- ng container -->
+      <ng-container
+        *ngTemplateOutlet="{ stocks: stocks, homepagedata: homepagedata }[tab]"
+      ></ng-container>
+    </div>
+  </div>
+</div>
+
+<ng-template #stocks>
+  <div class="p-3">
+    <h5>Filter</h5>
+    <div ngbDropdown class="d-inline-block mr-2 mb-1">
+      <button
+        class="btn btn-primary category-button"
+        readonly
+        id="dropdownBasic1"
+        ngbDropdownToggle
+        role="button"
+        (click)="$event.preventDefault()"
+        placeholder="Category"
+      >
+        {{ currentCategory ? currentCategory.name : "Category " }}
+      </button>
+      <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+        <button
+          ngbDropdownItem
+          *ngFor="let categoryItem of categories"
+          (click)="$event.preventDefault(); selectCategory(categoryItem)"
+        >
+          {{ categoryItem.name }}
+        </button>
+      </div>
+    </div>
+
+    <div ngbDropdown class="d-inline-block mr-2 mb-1">
+      <button
+        class="btn sub-category-button"
+        readonly
+        id="dropdownBasic1"
+        ngbDropdownToggle
+        (click)="$event.preventDefault()"
+      >
+        {{ currentSubCategory ? currentSubCategory : "SubCategory " }}
+      </button>
+
+      <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+        <button
+          ngbDropdownItem
+          *ngFor="let subCategoryItem of subCategories"
+          (click)="$event.preventDefault(); selectSubCategory(subCategoryItem)"
+        >
+          {{ subCategoryItem }}
+        </button>
+      </div>
+    </div>
+
+    <button class="btn btn-success mr-2" (click)="applyFilter()">Apply</button>
+    <button
+      class="btn btn-danger mr-2"
+      (click)="$event.preventDefault(); clearFilters()"
+    >
+      Clear
+    </button>
+  </div>
+
+  <!-- Display Stock List -->
+  <div class="row">
+    <div class="col-md-12">
+      <!-- table -->
+      <div class="table-responsive">
+        <table class="table">
+          <thead class="text-primary text-center">
+            <th>Id</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>value</th>
+            <th>Update</th>
+          </thead>
+          <tbody>
+            <tr
+              class="text-center"
+              *ngFor="let product of productStockList; let i = index"
+            >
+              <td>{{ product._id }}</td>
+              <td>{{ product.name }}</td>
+              <td>{{ product.price }}</td>
+              <td>{{ product.stocks }}</td>
+              <input
+                type="number"
+                style="width: 200px"
+                #updatedStockCount
+                class="form-control mx-auto mt-3 py-2"
+              />
+              <td>
+                <span class="btn btn-success">
+                  <i
+                    class="fa fa-check text-white"
+                    role="button"
+                    (click)="
+                      updateStockValue(product._id, updatedStockCount.value)
+                    "
+                  ></i>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #homepagedata>
+  <div class="">
+    <div class="form-group">
+      <label>Image url</label>
+      <textarea
+        rows="9"
+        [(ngModel)]="carouselImageUrls"
+        class="form-control"
+        placeholder="Enter url separated by comma ( , )"
+      ></textarea>
+    </div>
+    <div class="form-group">
+      <label>Discount Section Filler</label>
+      <textarea
+        [(ngModel)]="discountSectionFiller"
+        class="form-control"
+        placeholder="Enter text chunck in three sections followed by comma ( , )"
+      ></textarea>
+    </div>
+    <button class="btn btn-info" (click)="getHomepageData()">GET DATA</button>
+    <button class="btn btn-warning" (click)="updateHomePageData()">
+      UPDATE
+    </button>
+  </div>
+</ng-template>

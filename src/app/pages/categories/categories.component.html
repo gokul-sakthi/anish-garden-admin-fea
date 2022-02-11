@@ -1,0 +1,157 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <!-- navigation tabs -->
+        <ul class="nav nav-tabs">
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              role="button"
+              [ngClass]="{ active: tab === 'add' }"
+              (click)="onChangeTab('add')"
+              >{{ editMode ? "Edit" : "Add" }}</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              [ngClass]="{ active: tab === 'viewall' }"
+              (click)="onChangeTab('viewall')"
+              role="button"
+              >View All</a
+            >
+          </li>
+        </ul>
+      </div>
+
+      <!-- card body -->
+      <div class="card-body">
+        <!-- form -->
+
+        <ng-container
+          *ngTemplateOutlet="{ add: add, viewall: viewall }[tab]"
+        ></ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #add>
+  <form
+    [formGroup]="categoryForm"
+    (ngSubmit)="submit()"
+    (keydown)="($event.key != 'Enter')"
+  >
+    <div class="form-group">
+      <label for="name">Name*</label>
+      <input type="text" formControlName="name" class="form-control" />
+    </div>
+
+    <label for="subcategories">subcategories</label>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <input
+            type="text"
+            formControlName="currentSubCategoryEntry"
+            class="form-control mt-2"
+            placeholder="Name"
+          />
+        </div>
+      </div>
+
+      <div class="col-md-2">
+        <div class="form-group">
+          <button
+            class="btn btn-success"
+            (click)="addSubCategory(); $event.preventDefault()"
+          >
+            Add
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- display sub categories -->
+    <label for="">Display subcategories</label>
+    <div class="" formArrayName="subCategory">
+      <div
+        class="row"
+        *ngFor="let control of getSubCategories().controls; let i = index"
+      >
+        <div class="col-md-6">
+          <div class="form-group">
+            <input
+              type="text"
+              [formControlName]="i"
+              [value]="control.value"
+              [readonly]="control.value === 'Others'"
+              class="form-control mt-2"
+            />
+          </div>
+        </div>
+        <div class="col-md-2">
+          <button
+            class="btn btn-danger"
+            [disabled]="control.value === 'Others'"
+            (click)="$event.preventDefault(); removeSubCategory(i)"
+          >
+            Remove
+          </button>
+        </div>
+        <p
+          class="help-block col-md-12 d-block text-danger"
+          *ngIf="
+            getSubCategories().at(i).errors?.required &&
+            getSubCategories().at(i).touched
+          "
+        >
+          subcategory should not be empty
+        </p>
+      </div>
+    </div>
+
+    <button class="btn btn-success" [disabled]="categoryForm.invalid">
+      {{ editMode ? "Update" : "Save" }}
+    </button>
+  </form>
+</ng-template>
+
+<ng-template #viewall>
+  <app-accordion
+    *ngFor="let category of allCategories"
+    [accordionDataId]="category._id"
+    [name]="category.name"
+    (editData)="editCategoryData($event)"
+    (deleteData)="deleteCategoryData($event)"
+  >
+    <ul class="list-group" *ngFor="let subCategory of category.subCategory">
+      <li class="list-group-item sub-category-item rounded-0">
+        {{ subCategory }}
+      </li>
+    </ul>
+  </app-accordion>
+
+  <!-- <div class="card">
+    <div class="card-header"></div>
+    <div class="card-body">
+      <ul class="list-group my-2" *ngFor="let category of allCategories">
+        <li
+          class="list-group-item justify-content-between d-flex"
+          (click)="hideSubCategories = !hideSubCategories"
+        >
+          <span class="">{{ category.name }}</span>
+          <i class="nc-icon nc-minimal-down mt-1"></i>
+        </li>
+        <div
+          class="subcategory-container"
+          [ngClass]="{ 'd-none': hideSubCategories }"
+          *ngFor="let subCategory of category.subCategory"
+        >
+          <li class="list-group-item">{{ subCategory }}</li>
+        </div>
+      </ul>
+    </div>
+  </div> -->
+</ng-template>
