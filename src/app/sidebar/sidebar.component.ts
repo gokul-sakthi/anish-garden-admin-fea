@@ -7,7 +7,7 @@ export interface RouteInfo {
   class: string;
 }
 
-export const ROUTES: RouteInfo[] = [
+const unusedRoutes = [
   { path: "/dashboard", title: "Dashboard", icon: "nc-bank", class: "" },
   { path: "/icons", title: "Icons", icon: "nc-diamond", class: "" },
   { path: "/maps", title: "Maps", icon: "nc-pin-3", class: "" },
@@ -25,6 +25,9 @@ export const ROUTES: RouteInfo[] = [
     icon: "nc-caps-small",
     class: "",
   },
+];
+
+export const ROUTES: RouteInfo[] = [
   {
     path: "/collections",
     title: "Collections",
